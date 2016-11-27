@@ -3,6 +3,7 @@
 #include "ObjLoader.h"
 #include "SceneParameters.h"
 #include "Libraries\glm\gtc\matrix_transform.hpp"
+#include <chrono>
 
 Scene::Scene()
 {
@@ -22,18 +23,19 @@ void Scene::initializeScene() {
 }
 
 void Scene::renderPhong() {
+	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glUseProgram(basicPhongShader);
 
-	glUniformMatrix4fv(glGetUniformLocation(basicPhongShader, "ViewMatrix"), 1, false, &(cam.getViewMatrix()[0][0]));
 	glUniformMatrix4fv(glGetUniformLocation(basicPhongShader, "ProjectionMatrix"), 1, false, &(getProjectionMatrix()[0][0]));
 
 	for (SceneObject *obj : objects) {
-		obj->draw(basicPhongShader);
+		obj->draw(basicPhongShader, cam.getViewMatrix());
 	}
+	std::cout << "Phong:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
 }
 
 void draw(Texture *t1, Texture *t2, Texture *t3, Texture *t4) {
@@ -121,32 +123,27 @@ void Scene::renderSSAO() {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+	std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 	//first pass
 	ssaoFirstBuffer->bind();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(firstPassSSAOShader);
 
-	glUniformMatrix4fv(glGetUniformLocation(firstPassSSAOShader, "ViewMatrix"), 1, false, &(cam.getViewMatrix()[0][0]));
 	glUniformMatrix4fv(glGetUniformLocation(firstPassSSAOShader, "ProjectionMatrix"), 1, false, &(getProjectionMatrix()[0][0]));
-	glUniform1f(glGetUniformLocation(firstPassSSAOShader, "zNear"), SceneParameters::getZNear());
-	glUniform1f(glGetUniformLocation(firstPassSSAOShader, "zFar"), SceneParameters::getZFar());
 
 	for (SceneObject *obj : objects) {
-		obj->draw(firstPassSSAOShader);
+		obj->draw(firstPassSSAOShader, cam.getViewMatrix());
 	}
 
 	ssaoFirstBuffer->unbind();
-	
+	std::cout << "First pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
 	
 
+	t1 = std::chrono::high_resolution_clock::now();
 	//second pass
 	ssaoSecondBuffer->bind();
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(secondPassSSAOShader);
-
-	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "positionTexture"), 0);
-	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "normalTexture"), 1);
-	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "noiseTexture"), 2);
 
 	ssaoFirstBuffer->positionTexture->Bind(GL_TEXTURE0);
 	ssaoFirstBuffer->normalTexture->Bind(GL_TEXTURE1); 
@@ -158,9 +155,11 @@ void Scene::renderSSAO() {
 	glUniform2f(glGetUniformLocation(secondPassSSAOShader, "noiseScale"), ssaoNoiseTex->getNoiseScale().x, ssaoNoiseTex->getNoiseScale().y);
 	quad->draw();
 	ssaoSecondBuffer->unbind();
+	std::cout << "Second pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
 
 
 
+	t1 = std::chrono::high_resolution_clock::now();
 	//third pass
 	ssaoThirdBuffer->bind();
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -169,20 +168,22 @@ void Scene::renderSSAO() {
 	ssaoSecondBuffer->ssaoTexture->Bind(GL_TEXTURE0);
 	quad->draw();
 	ssaoThirdBuffer->unbind();
+	std::cout << "Third pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
+
+
+
 
 	if (shadingType == TYPE_SSAO) {
+		t1 = std::chrono::high_resolution_clock::now();
 		//final pass
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(finalPassSSAOShader);
-
-		glUniform1i(glGetUniformLocation(finalPassSSAOShader, "colorTexture"), 0);
-		glUniform1i(glGetUniformLocation(finalPassSSAOShader, "specularTexture"), 1);
-		glUniform1i(glGetUniformLocation(finalPassSSAOShader, "ssaoTexture"), 2);
 
 		ssaoFirstBuffer->colorTexture->Bind(GL_TEXTURE0);
 		ssaoFirstBuffer->specularTexture->Bind(GL_TEXTURE1);
 		ssaoThirdBuffer->blurredSSAOTexture->Bind(GL_TEXTURE2);
 		quad->draw();
+		std::cout << "Last pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
 	}
 	else if (shadingType == TYPE_DEBUG) {
 		draw(ssaoFirstBuffer->normalTexture, ssaoFirstBuffer->positionTexture, ssaoSecondBuffer->ssaoTexture, ssaoThirdBuffer->blurredSSAOTexture);
@@ -226,10 +227,27 @@ void Scene::loadFramebuffers() {
 void Scene::loadShaders() {
 	ShaderLoader loader;
 	basicPhongShader = loader.loadShader("Shaders/PhongVertexShader.glsl", "Shaders/PhongFragmentShader.glsl");
+
 	firstPassSSAOShader = loader.loadShader("Shaders/SSAOFirstPassVertex.glsl", "Shaders/SSAOFirstPassFragment.glsl");
+	glUseProgram(firstPassSSAOShader);
+	glUniform1f(glGetUniformLocation(firstPassSSAOShader, "zNear"), SceneParameters::getZNear());
+	glUniform1f(glGetUniformLocation(firstPassSSAOShader, "zFar"), SceneParameters::getZFar());
+
 	secondPassSSAOShader = loader.loadShader("Shaders/SSAOSimpleVertex.glsl", "Shaders/SSAOSecondPassFragment.glsl");
+	glUseProgram(secondPassSSAOShader);
+	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "positionTexture"), 0);
+	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "normalTexture"), 1);
+	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "noiseTexture"), 2);
+
 	thirdPassSSAOShader = loader.loadShader("Shaders/SSAOSimpleVertex.glsl", "Shaders/SSAOThirdPassFragment.glsl");
+
 	finalPassSSAOShader = loader.loadShader("Shaders/SSAOSimpleVertex.glsl", "Shaders/SSAOLastPassFragment.glsl");
+	glUseProgram(finalPassSSAOShader);
+	glUniform1i(glGetUniformLocation(finalPassSSAOShader, "colorTexture"), 0);
+	glUniform1i(glGetUniformLocation(finalPassSSAOShader, "specularTexture"), 1);
+	glUniform1i(glGetUniformLocation(finalPassSSAOShader, "ssaoTexture"), 2);
+
+	glUseProgram(0);
 }
 
 void Scene::loadOtherStuff() {

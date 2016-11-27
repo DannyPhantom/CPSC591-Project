@@ -27,7 +27,7 @@ void main(void)
     // Calculate R locally
     vec3 R = reflect(-L, N);
 
-    vec4 diffuse = max(dot(N, L), 0.0) * fs_in.C;
+    vec4 diffuse = max(dot(N, L), 0.3) * fs_in.C;
 	if (TextureValid)
 		diffuse *= texture(TextureUniform, fs_in.uv);
 
@@ -35,5 +35,4 @@ void main(void)
 
     // Write final colour to the framebuffer
     gl_FragColor = ambient + diffuse + specular;
-	//gl_FragColor = vec4(1.0, 0.5, 0.5, 1.0);
 }

@@ -5,8 +5,8 @@ layout (location = 1) in vec4 colour_attr;
 layout (location = 2) in vec3 normal_attr;
 layout (location = 3) in vec2 texcoords_attr;
 
-uniform highp mat4 ModelMatrix;
-uniform highp mat4 ViewMatrix;
+uniform highp mat4 ModelViewMatrix;
+uniform highp mat3 NormalMatrix;
 uniform highp mat4 ProjectionMatrix;
 
 // Outputs
@@ -24,14 +24,11 @@ uniform vec3 light_pos = vec3(100.0, 100.0, 100.0);
 
 void main(void)
 {
-    // Calculate model-view matrix
-    mat4 mv_matrix = ViewMatrix * ModelMatrix;
-
     // Calculate view-space coordinate
-    vec4 P = mv_matrix * vec4(position_attr, 1);
+    vec4 P = ModelViewMatrix * vec4(position_attr, 1);
 
     // Calculate normal in view-space
-    vs_out.N = mat3(mv_matrix) * normal_attr;
+    vs_out.N = NormalMatrix * normal_attr;
 
     // Calculate light vector
     vs_out.L = light_pos - P.xyz;

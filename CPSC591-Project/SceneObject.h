@@ -19,7 +19,7 @@ public:
 	std::vector<Mesh *> *getMeshes() { return &meshes; }
 	void setupVAOs();
 	void setupVBOs();
-	void draw(GLuint program);
+	void draw(GLuint program, glm::mat4 viewMatrix);
 
 	void setPosition(glm::vec3 pos) { position = pos; recalculateModelMatrix(); }
 	void setScale(glm::vec3 sc) { scale = sc; recalculateModelMatrix(); }

@@ -17,7 +17,7 @@ in VS_OUT
 
 // Texture Mapping
 uniform sampler2D TextureUniform;
-uniform bool TextureValid;
+uniform int TextureValid;
 
 // Projection matrix's near and far planes
 uniform float zNear; 
@@ -40,7 +40,7 @@ void main(void)
     vec3 L = normalize(fs_in.L);
     vec3 V = normalize(fs_in.V);
 
-	//store variables to our textures
+	//store position
 	position.xyz = fs_in.positionCameraSpace;
 	//get the alpha for position
 	position.a = linearizeDepth(gl_FragCoord.z);
@@ -52,16 +52,12 @@ void main(void)
 
     vec3 diffuse = max(dot(N, L), 0.3) * vec3(fs_in.C);
 	float alpha;
-	if (TextureValid) {
-		vec4 texColor = texture(TextureUniform, fs_in.uv);
-		diffuse *= vec3(texColor);
-		color = vec4(diffuse, texColor.a);
-		alpha = texColor.a;
-	} else {
-		color = vec4(diffuse, fs_in.C.a);
-		alpha = fs_in.C.a;
-	}
+	vec4 textureColor = texture(TextureUniform, fs_in.uv);
+	diffuse *= (1 - TextureValid) * vec3(1) + TextureValid * textureColor.rgb;
+	alpha = (1 - TextureValid) * fs_in.C.a + TextureValid * textureColor.a;
 
     vec3 spec = pow(max(dot(R, V), 0.0), specular_power) * specular_color;
+	
+	color = vec4(diffuse, alpha);
 	specular = vec4(spec, alpha);
 }

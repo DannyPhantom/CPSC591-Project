@@ -37,7 +37,7 @@ void SSAOFirstPassFramebuffer::create() {
 	//Normal buffer
 	glGenTextures(1, &normalTex);
 	glBindTexture(GL_TEXTURE_2D, normalTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SceneParameters::getScreenWidth(), SceneParameters::getScreenHeight(), 0, GL_RGB, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SceneParameters::getScreenWidth(), SceneParameters::getScreenHeight(), 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, normalTex, 0);

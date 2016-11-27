@@ -42,10 +42,13 @@ void SceneObject::setupVBOs() {
 
 }
 
-void SceneObject::draw(GLuint program)
+void SceneObject::draw(GLuint program, glm::mat4 viewMatrix)
 {
 	glUniform1i(glGetUniformLocation(program, "TextureUniform"), 0);
-	glUniformMatrix4fv(glGetUniformLocation(program, "ModelMatrix"), 1, false, &modelMatrix[0][0]);
+	glm::mat4 mvMatrix = viewMatrix * modelMatrix;
+	glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(mvMatrix)));
+	glUniformMatrix4fv(glGetUniformLocation(program, "ModelViewMatrix"), 1, false, &mvMatrix[0][0]);
+	glUniformMatrix3fv(glGetUniformLocation(program, "NormalMatrix"), 1, false, &normalMatrix[0][0]);
 
 	for (unsigned int i = 0; i < meshes.size(); i++) {
 		Mesh *mesh = meshes.at(i);
