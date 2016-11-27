@@ -1,4 +1,5 @@
 #include "SSAONoiseTexture.h"
+#include "SceneParameters.h"
 #include <random>
 #include <ctime>
 
@@ -31,4 +32,8 @@ void SSAONoiseTexture::generate() {
 	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glBindTexture(textureTarget, 0);
+}
+
+glm::vec2 SSAONoiseTexture::getNoiseScale() {
+	return glm::vec2(1.0f * SceneParameters::getScreenWidth() / noiseDimension, 1.0f * SceneParameters::getScreenHeight() / noiseDimension);
 }

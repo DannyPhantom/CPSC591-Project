@@ -39,3 +39,7 @@ void SSAOKernel::pushToGPU(GLuint program) {
 		glUniform3fv(glGetUniformLocation(program, ("samples[" + std::to_string(i) + "]").c_str()), 1, &kernel[i][0]);
 	}
 }
+
+int SSAOKernel::getSize() {
+	return kernelSize;
+}

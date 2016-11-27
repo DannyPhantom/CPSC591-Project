@@ -14,5 +14,4 @@ void main()
     float ambientOcclusion = texture(ssaoTexture, texCoords).r;
 
     gl_FragColor = vec4(ambientOcclusion * (vec3(0.1, 0.1, 0.1) + diffuseColor + specColor), 1.0);
-	//gl_FragColor = vec4(ambientOcclusion, ambientOcclusion, ambientOcclusion, 1);
 }

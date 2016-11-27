@@ -9,12 +9,13 @@ uniform sampler2D noiseTexture;
 uniform vec3 samples[64];
 
 // parameters
-int kernelSize = 64;
-float radius = 15.0;
+uniform int kernelSize;
+uniform float radius;
 
 // tile noise texture over screen based on screen dimensions divided by noise size
-const vec2 noiseScale = vec2(1500.0f/4.0f, 900.0f/4.0f); 
+uniform vec2 noiseScale; 
 
+// projection matrix
 uniform mat4 ProjectionMatrix;
 
 void main()
@@ -35,7 +36,7 @@ void main()
     {
         // get sample position
         vec3 sampleVec = TBN * samples[i]; // From tangent to view-space
-        sampleVec = position + sampleVec * radius + 0.1f * normal; 
+        sampleVec = position + sampleVec * radius;
         
         // project sample position (to sample texture) (to get position on screen/texture)
         vec4 offset = vec4(sampleVec, 1.0);
@@ -46,11 +47,9 @@ void main()
         // get sample depth
         float sampleDepth = -texture(positionTexture, offset.xy).w; // Get depth value of kernel sample
         
-		if (sampleDepth > -2500) {
-			// range check & accumulate
-			float rangeCheck = smoothstep(0.0, 1.0, radius / abs(position.z - sampleDepth ));
-			occlusion += (sampleDepth >= sampleVec.z ? 1.0 : 0.0) * rangeCheck;   
-		}        
+		// range check & accumulate
+		float rangeCheck = smoothstep(0.0, 1.0, radius / abs(position.z - sampleDepth ));
+		occlusion += (sampleDepth >= sampleVec.z ? 1.0 : 0.0) * rangeCheck;   
     }
     occlusion = 1 - (occlusion / kernelSize);
   

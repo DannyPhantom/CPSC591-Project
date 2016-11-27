@@ -11,6 +11,7 @@ public:
 	~SSAOKernel();
 
 	void pushToGPU(GLuint program);
+	int getSize();
 private:
 	void generate();
 

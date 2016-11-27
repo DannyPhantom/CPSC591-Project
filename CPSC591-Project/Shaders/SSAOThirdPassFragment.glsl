@@ -3,7 +3,8 @@
 in vec2 texCoords;
 
 uniform sampler2D ssaoTexture;
-uniform int blurSize = 4; //size of the noise texture
+//size of the noise texture
+uniform int blurSize;
 
 void main() 
 {

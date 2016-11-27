@@ -4,12 +4,12 @@
 
 Camera::Camera()
 {
-	position = glm::vec3(0, 100, 0);
+	position = glm::vec3(0, 9, 0);
 	phi = 0;
 	theta = 0;
 	shouldBeMovedForward = false;
 	shouldBeMovedBackwards = false;
-	cameraMovementSpeed = 300.0f;
+	cameraMovementSpeed = 15.0f;
 
 	direction.x = cos(glm::radians(phi)) * cos(glm::radians(theta));
 	direction.y = sin(glm::radians(phi));

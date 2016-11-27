@@ -4,6 +4,8 @@
 int SceneParameters::screenHeight;
 int SceneParameters::screenWidth;
 bool SceneParameters::isFullScreen;
+float SceneParameters::zNear;
+float SceneParameters::zFar;
 
 SceneParameters::SceneParameters()
 {
@@ -15,6 +17,8 @@ SceneParameters::~SceneParameters()
 }
 
 void SceneParameters::initialize() {
+	zNear = 0.5f;
+	zFar = 500.0f;
 	screenHeight = 900;
 	screenWidth = 1500;
 	isFullScreen = false;
@@ -35,4 +39,12 @@ int SceneParameters::getScreenHeight() {
 
 int SceneParameters::getScreenWidth() {
 	return screenWidth;
+}
+
+float SceneParameters::getZNear() {
+	return zNear;
+}
+
+float SceneParameters::getZFar() {
+	return zFar;
 }

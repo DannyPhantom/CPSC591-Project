@@ -68,6 +68,7 @@ private:
 	enum SceneShadingType {
 		TYPE_PHONG,
 		TYPE_SSAO,
+		TYPE_DEBUG,
 	} shadingType;
 };
 

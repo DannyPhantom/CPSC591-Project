@@ -15,19 +15,22 @@ in VS_OUT
 	vec3 positionCameraSpace;
 } fs_in;
 
-uniform vec3 specular_color = vec3(0.7);
-uniform float specular_power = 128.0;
-
 // Texture Mapping
 uniform sampler2D TextureUniform;
 uniform bool TextureValid;
 
-const float NEAR = 1.f; // Projection matrix's near plane distance
-const float FAR = 50000.f; // Projection matrix's far plane distance
+// Projection matrix's near and far planes
+uniform float zNear; 
+uniform float zFar; 
+
+//color info
+vec3 specular_color = vec3(0.7);
+float specular_power = 128.0;
+
 float linearizeDepth(float depth)
 {
     float z = depth * 2.0 - 1.0; // Back to NDC 
-    return (2.0 * NEAR * FAR) / (FAR + NEAR - z * (FAR - NEAR));	
+    return (2.0 * zNear * zFar) / (zFar + zNear - z * (zFar - zNear));	
 }
 
 void main(void)

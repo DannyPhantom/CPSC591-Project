@@ -10,6 +10,7 @@ public:
 	SSAONoiseTexture(int noiseDim);
 	~SSAONoiseTexture();
 
+	glm::vec2 getNoiseScale();
 private:
 	void generate();
 

@@ -128,6 +128,8 @@ void Scene::renderSSAO() {
 
 	glUniformMatrix4fv(glGetUniformLocation(firstPassSSAOShader, "ViewMatrix"), 1, false, &(cam.getViewMatrix()[0][0]));
 	glUniformMatrix4fv(glGetUniformLocation(firstPassSSAOShader, "ProjectionMatrix"), 1, false, &(getProjectionMatrix()[0][0]));
+	glUniform1f(glGetUniformLocation(firstPassSSAOShader, "zNear"), SceneParameters::getZNear());
+	glUniform1f(glGetUniformLocation(firstPassSSAOShader, "zFar"), SceneParameters::getZFar());
 
 	for (SceneObject *obj : objects) {
 		obj->draw(firstPassSSAOShader);
@@ -151,6 +153,9 @@ void Scene::renderSSAO() {
 	ssaoNoiseTex->Bind(GL_TEXTURE2);
 	ssaoKernel->pushToGPU(secondPassSSAOShader);
 	glUniformMatrix4fv(glGetUniformLocation(secondPassSSAOShader, "ProjectionMatrix"), 1, GL_FALSE, &(getProjectionMatrix()[0][0]));
+	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "kernelSize"), ssaoKernel->getSize());
+	glUniform1f(glGetUniformLocation(secondPassSSAOShader, "radius"), 1.0f);
+	glUniform2f(glGetUniformLocation(secondPassSSAOShader, "noiseScale"), ssaoNoiseTex->getNoiseScale().x, ssaoNoiseTex->getNoiseScale().y);
 	quad->draw();
 	ssaoSecondBuffer->unbind();
 
@@ -160,24 +165,28 @@ void Scene::renderSSAO() {
 	ssaoThirdBuffer->bind();
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(thirdPassSSAOShader);
+	glUniform1i(glGetUniformLocation(thirdPassSSAOShader, "blurSize"), 4);
 	ssaoSecondBuffer->ssaoTexture->Bind(GL_TEXTURE0);
 	quad->draw();
 	ssaoThirdBuffer->unbind();
 
-	//final pass
-	glClear(GL_COLOR_BUFFER_BIT);
-	glUseProgram(finalPassSSAOShader);
+	if (shadingType == TYPE_SSAO) {
+		//final pass
+		glClear(GL_COLOR_BUFFER_BIT);
+		glUseProgram(finalPassSSAOShader);
 
-	glUniform1i(glGetUniformLocation(finalPassSSAOShader, "colorTexture"), 0);
-	glUniform1i(glGetUniformLocation(finalPassSSAOShader, "specularTexture"), 1);
-	glUniform1i(glGetUniformLocation(finalPassSSAOShader, "ssaoTexture"), 2);
+		glUniform1i(glGetUniformLocation(finalPassSSAOShader, "colorTexture"), 0);
+		glUniform1i(glGetUniformLocation(finalPassSSAOShader, "specularTexture"), 1);
+		glUniform1i(glGetUniformLocation(finalPassSSAOShader, "ssaoTexture"), 2);
 
-	ssaoFirstBuffer->colorTexture->Bind(GL_TEXTURE0);
-	ssaoFirstBuffer->specularTexture->Bind(GL_TEXTURE1);
-	ssaoThirdBuffer->blurredSSAOTexture->Bind(GL_TEXTURE2);
-	quad->draw();
-
-	//draw(ssaoFirstBuffer->normalTexture, ssaoFirstBuffer->positionTexture, ssaoSecondBuffer->ssaoTexture, ssaoThirdBuffer->blurredSSAOTexture);
+		ssaoFirstBuffer->colorTexture->Bind(GL_TEXTURE0);
+		ssaoFirstBuffer->specularTexture->Bind(GL_TEXTURE1);
+		ssaoThirdBuffer->blurredSSAOTexture->Bind(GL_TEXTURE2);
+		quad->draw();
+	}
+	else if (shadingType == TYPE_DEBUG) {
+		draw(ssaoFirstBuffer->normalTexture, ssaoFirstBuffer->positionTexture, ssaoSecondBuffer->ssaoTexture, ssaoThirdBuffer->blurredSSAOTexture);
+	}
 }
 
 void Scene::renderScene(float dt) {
@@ -186,7 +195,7 @@ void Scene::renderScene(float dt) {
 	if (shadingType == TYPE_PHONG) {
 		renderPhong();
 	}
-	else if (shadingType == TYPE_SSAO) {
+	else if (shadingType == TYPE_SSAO || shadingType == TYPE_DEBUG) {
 		renderSSAO();
 	}
 
@@ -241,24 +250,27 @@ void Scene::loadObjects() {
 
 void Scene::placeObjects() {
 	//bunny
-	objects[0]->setPosition(glm::vec3(200, 120, 0));
-	objects[0]->setScale(glm::vec3(100, 100, 100));
+	objects[0]->setPosition(glm::vec3(9, 9, 0));
+	objects[0]->setScale(glm::vec3(1, 1, 1));
 
 	//f16
-	objects[1]->setPosition(glm::vec3(0, 120, 0));
-	objects[1]->setScale(glm::vec3(100, 100, 100));
+	objects[1]->setPosition(glm::vec3(0, 9, 0));
+	objects[1]->setScale(glm::vec3(1, 1, 1));
+
+	//city
+	objects[2]->setScale(glm::vec3(0.1, 0.1, 0.1));
 
 	//skybox
-	objects[3]->setScale(glm::vec3(0.2, 0.2, 0.2));
-	objects[3]->setPosition(glm::vec3(0, -5000, 0));
+	objects[3]->setScale(glm::vec3(0.002, 0.002, 0.002));
+	objects[3]->setPosition(glm::vec3(0, -50, 0));
 }
 
 glm::mat4 Scene::getProjectionMatrix() {
 	return glm::perspective(
 		glm::radians(90.0f),
 		1.0f * SceneParameters::getScreenWidth() / SceneParameters::getScreenHeight(),
-		1.f,
-		50000.f
+		SceneParameters::getZNear(),
+		SceneParameters::getZFar()
 	);
 }
 
@@ -267,6 +279,9 @@ void Scene::setShadingTypeNext() {
 		shadingType = TYPE_SSAO;
 	}
 	else if (shadingType == TYPE_SSAO) {
+		shadingType = TYPE_DEBUG;
+	}
+	else if (shadingType == TYPE_DEBUG) {
 		shadingType = TYPE_PHONG;
 	}
 }
