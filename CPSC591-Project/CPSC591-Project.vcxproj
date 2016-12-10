@@ -118,6 +118,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="main.cpp" />
@@ -135,8 +136,11 @@
     <ClCompile Include="SSAOThirdPassFramebuffer.cpp" />
     <ClCompile Include="Text2D.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TexturedObject2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Button.h" />
+    <ClInclude Include="ButtonCallback.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="Mesh.h" />
@@ -153,6 +157,7 @@
     <ClInclude Include="SSAOThirdPassFramebuffer.h" />
     <ClInclude Include="Text2D.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TexturedObject2D.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SSAOFirstPassFragment.glsl" />

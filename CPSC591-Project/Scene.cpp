@@ -20,6 +20,7 @@ void Scene::initializeScene() {
 	loadObjects();
 	loadOtherStuff();
 	placeObjects();
+	setupUI();
 }
 
 void Scene::renderPhong() {
@@ -35,84 +36,37 @@ void Scene::renderPhong() {
 	for (SceneObject *obj : objects) {
 		obj->draw(basicPhongShader, cam.getViewMatrix());
 	}
-	std::cout << "Phong:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
+	//std::cout << "Phong:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
 }
 
-void draw(Texture *t1, Texture *t2, Texture *t3, Texture *t4) {
-	glUseProgram(0);
-	glClear(GL_COLOR_BUFFER_BIT);
-
+void Scene::drawDebug(Texture *t1, Texture *t2, Texture *t3, Texture *t4) {
+	TexturedObject2D obj1(t1, glm::vec2(0), 1, 1); obj1.flipY();
+	TexturedObject2D obj2(t2, glm::vec2(0), 1, 1); obj2.flipY();
+	TexturedObject2D obj3(t3, glm::vec2(0), 1, 1); obj3.flipY();
+	TexturedObject2D obj4(t4, glm::vec2(0), 1, 1); obj4.flipY();
 
 	//1
 	glViewport(0, 0, SceneParameters::getScreenWidth() / 2, SceneParameters::getScreenHeight() / 2);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	t1->Bind(GL_TEXTURE0);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0); glVertex2f(-1, -1);
-	glTexCoord2f(1, 0); glVertex2f(1, -1);
-	glTexCoord2f(1, 1); glVertex2f(1, 1);
-	glTexCoord2f(0, 1); glVertex2f(-1, 1);
-	glEnd();
-	t1->unBind(GL_TEXTURE0);
+	obj1.draw(shader2D);
 
 
 	//2
 	glViewport(SceneParameters::getScreenWidth() / 2, 0, SceneParameters::getScreenWidth() / 2, SceneParameters::getScreenHeight() / 2);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	t2->Bind(GL_TEXTURE0);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0); glVertex2f(-1, -1);
-	glTexCoord2f(1, 0); glVertex2f(1, -1);
-	glTexCoord2f(1, 1); glVertex2f(1, 1);
-	glTexCoord2f(0, 1); glVertex2f(-1, 1);
-	glEnd();
-	t2->unBind(GL_TEXTURE0);
+	obj2.draw(shader2D);
 
 
 	//3
 	glViewport(0, SceneParameters::getScreenHeight() / 2, SceneParameters::getScreenWidth() / 2, SceneParameters::getScreenHeight() / 2);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	t3->Bind(GL_TEXTURE0);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0); glVertex2f(-1, -1);
-	glTexCoord2f(1, 0); glVertex2f(1, -1);
-	glTexCoord2f(1, 1); glVertex2f(1, 1);
-	glTexCoord2f(0, 1); glVertex2f(-1, 1);
-	glEnd();
-	t3->unBind(GL_TEXTURE0);
+	obj3.draw(shader2D);
 
 
 	//4
 	glViewport(SceneParameters::getScreenWidth() / 2, SceneParameters::getScreenHeight() / 2, SceneParameters::getScreenWidth() / 2, SceneParameters::getScreenHeight() / 2);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	t4->Bind(GL_TEXTURE0);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0); glVertex2f(-1, -1);
-	glTexCoord2f(1, 0); glVertex2f(1, -1);
-	glTexCoord2f(1, 1); glVertex2f(1, 1);
-	glTexCoord2f(0, 1); glVertex2f(-1, 1);
-	glEnd();
-	t4->unBind(GL_TEXTURE0);
+	obj4.draw(shader2D);
 
 	glViewport(0, 0, SceneParameters::getScreenWidth(), SceneParameters::getScreenHeight());
 }
@@ -136,7 +90,7 @@ void Scene::renderSSAO() {
 	}
 
 	ssaoFirstBuffer->unbind();
-	std::cout << "First pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
+	//std::cout << "First pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
 	
 
 	t1 = std::chrono::high_resolution_clock::now();
@@ -155,7 +109,7 @@ void Scene::renderSSAO() {
 	glUniform2f(glGetUniformLocation(secondPassSSAOShader, "noiseScale"), ssaoNoiseTex->getNoiseScale().x, ssaoNoiseTex->getNoiseScale().y);
 	quad->draw();
 	ssaoSecondBuffer->unbind();
-	std::cout << "Second pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
+	//std::cout << "Second pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
 
 
 
@@ -168,7 +122,7 @@ void Scene::renderSSAO() {
 	ssaoSecondBuffer->ssaoTexture->Bind(GL_TEXTURE0);
 	quad->draw();
 	ssaoThirdBuffer->unbind();
-	std::cout << "Third pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
+	//std::cout << "Third pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
 
 
 
@@ -183,11 +137,20 @@ void Scene::renderSSAO() {
 		ssaoFirstBuffer->specularTexture->Bind(GL_TEXTURE1);
 		ssaoThirdBuffer->blurredSSAOTexture->Bind(GL_TEXTURE2);
 		quad->draw();
-		std::cout << "Last pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
+		ssaoFirstBuffer->colorTexture->unBind(GL_TEXTURE0);
+		ssaoFirstBuffer->specularTexture->unBind(GL_TEXTURE1);
+		ssaoThirdBuffer->blurredSSAOTexture->unBind(GL_TEXTURE2);
+		//std::cout << "Last pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
 	}
 	else if (shadingType == TYPE_DEBUG) {
-		draw(ssaoFirstBuffer->normalTexture, ssaoFirstBuffer->positionTexture, ssaoSecondBuffer->ssaoTexture, ssaoThirdBuffer->blurredSSAOTexture);
+		drawDebug(ssaoFirstBuffer->normalTexture, ssaoFirstBuffer->positionTexture, ssaoSecondBuffer->ssaoTexture, ssaoThirdBuffer->blurredSSAOTexture);
 	}
+}
+
+void Scene::renderUI() {
+	phongShadingButton->render(shader2D);
+	SSAOShadingButton->render(shader2D);
+	debugShadingButton->render(shader2D);
 }
 
 void Scene::renderScene(float dt) {
@@ -201,6 +164,7 @@ void Scene::renderScene(float dt) {
 	}
 
 	drawFPS(dt);
+	renderUI();
 }
 
 void Scene::drawFPS(float dt) {
@@ -226,6 +190,7 @@ void Scene::loadFramebuffers() {
 
 void Scene::loadShaders() {
 	ShaderLoader loader;
+	shader2D = loader.loadShader("Shaders/2dshader.vert", "Shaders/2dshader.frag");
 	basicPhongShader = loader.loadShader("Shaders/PhongVertexShader.glsl", "Shaders/PhongFragmentShader.glsl");
 
 	firstPassSSAOShader = loader.loadShader("Shaders/SSAOFirstPassVertex.glsl", "Shaders/SSAOFirstPassFragment.glsl");
@@ -283,6 +248,36 @@ void Scene::placeObjects() {
 	objects[3]->setPosition(glm::vec3(0, -50, 0));
 }
 
+void Scene::setupUI() {
+	//ssao shading button
+	Texture *SSAOShadingButtonTextureActive = new Texture(GL_TEXTURE_2D, "Textures/SSAOShadingButtonActive.png");
+	SSAOShadingButtonTextureActive->Load();
+	Texture *SSAOShadingButtonTextureInactive = new Texture(GL_TEXTURE_2D, "Textures/SSAOShadingButtonInactive.png");
+	SSAOShadingButtonTextureInactive->Load();
+	TexturedObject2D *SSAOShadingButtonTexturedObjectActive = new TexturedObject2D(SSAOShadingButtonTextureActive, glm::vec2(0.68, -0.92), 0.05, 0.04);
+	TexturedObject2D *SSAOShadingButtonTexturedObjectInactive = new TexturedObject2D(SSAOShadingButtonTextureInactive, glm::vec2(0.68, -0.92), 0.05, 0.04);
+	SSAOShadingButton = new Button(SSAOShadingButtonTexturedObjectInactive, SSAOShadingButtonTexturedObjectActive, this);
+	SSAOShadingButton->setClicked(true);
+
+	//phong shading button
+	Texture *phongShadingButtonTextureActive = new Texture(GL_TEXTURE_2D, "Textures/PhongShadingButtonActive.png");
+	phongShadingButtonTextureActive->Load();
+	Texture *phongShadingButtonTextureInactive = new Texture(GL_TEXTURE_2D, "Textures/PhongShadingButtonInactive.png");
+	phongShadingButtonTextureInactive->Load();
+	TexturedObject2D *phongShadingButtonTexturedObjectActive = new TexturedObject2D(phongShadingButtonTextureActive, glm::vec2(0.80, -0.92), 0.05, 0.04);
+	TexturedObject2D *phongShadingButtonTexturedObjectInactive = new TexturedObject2D(phongShadingButtonTextureInactive, glm::vec2(0.80, -0.92), 0.05, 0.04);
+	phongShadingButton = new Button(phongShadingButtonTexturedObjectInactive, phongShadingButtonTexturedObjectActive, this);
+
+	//debug shading button
+	Texture *debugShadingButtonTextureActive = new Texture(GL_TEXTURE_2D, "Textures/DebugShadingButtonActive.png");
+	debugShadingButtonTextureActive->Load();
+	Texture *debugShadingButtonTextureInactive = new Texture(GL_TEXTURE_2D, "Textures/DebugShadingButtonInactive.png");
+	debugShadingButtonTextureInactive->Load();
+	TexturedObject2D *debugShadingButtonTexturedObjectActive = new TexturedObject2D(debugShadingButtonTextureActive, glm::vec2(0.92, -0.92), 0.05, 0.04);
+	TexturedObject2D *debugShadingButtonTexturedObjectInactive = new TexturedObject2D(debugShadingButtonTextureInactive, glm::vec2(0.92, -0.92), 0.05, 0.04);
+	debugShadingButton = new Button(debugShadingButtonTexturedObjectInactive, debugShadingButtonTexturedObjectActive, this);
+}
+
 glm::mat4 Scene::getProjectionMatrix() {
 	return glm::perspective(
 		glm::radians(90.0f),
@@ -292,14 +287,32 @@ glm::mat4 Scene::getProjectionMatrix() {
 	);
 }
 
-void Scene::setShadingTypeNext() {
-	if (shadingType == TYPE_PHONG) {
-		shadingType = TYPE_SSAO;
-	}
-	else if (shadingType == TYPE_SSAO) {
-		shadingType = TYPE_DEBUG;
-	}
-	else if (shadingType == TYPE_DEBUG) {
+void Scene::onButtonClick(Button *button) {
+	if (button == phongShadingButton) {
 		shadingType = TYPE_PHONG;
+		SSAOShadingButton->mouseReleased();
+		debugShadingButton->mouseReleased();
 	}
+	else if (button == SSAOShadingButton) {
+		shadingType = TYPE_SSAO;
+		phongShadingButton->mouseReleased();
+		debugShadingButton->mouseReleased();
+	}
+	else if (button == debugShadingButton) {
+		shadingType = TYPE_DEBUG;
+		phongShadingButton->mouseReleased();
+		SSAOShadingButton->mouseReleased();
+	}
+}
+
+void Scene::onButtonRelease(Button *button) {
+
+}
+
+
+void Scene::onLeftMouseClick(float x, float y) {
+	//check for the shading type buttons first
+	phongShadingButton->mousePressed(x, y)
+		|| SSAOShadingButton->mousePressed(x, y)
+		|| debugShadingButton->mousePressed(x, y);
 }

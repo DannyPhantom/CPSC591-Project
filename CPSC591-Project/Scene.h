@@ -11,9 +11,11 @@
 #include "SSAONoiseTexture.h"
 #include "Simple2DQuad.h"
 #include "Text2D.h"
+#include "Button.h"
+#include "ButtonCallback.h"
 #include <chrono>
 
-class Scene
+class Scene : public ButtonCallback
 {
 public:
 	Scene();
@@ -23,19 +25,26 @@ public:
 	void renderScene(float dt);
 	Camera *getCamera() { return &cam; }
 
-	void setShadingTypeNext();
+	void onLeftMouseClick(float x, float y);
+
+	//ButtonCallback implementation
+	void onButtonClick(Button *button);
+	void onButtonRelease(Button *button);
 
 private:
 	void loadFramebuffers();
 	void loadShaders();
 	void loadObjects();
 	void loadOtherStuff();
+	void setupUI();
 	void placeObjects();
 	glm::mat4 getProjectionMatrix();
 	void renderPhong();
 	void renderSSAO();
+	void renderUI();
 	
 	void drawFPS(float dt);
+	void drawDebug(Texture *t1, Texture *t2, Texture *t3, Texture *t4);
 
 private:
 	std::vector<SceneObject *> objects;
@@ -45,6 +54,7 @@ private:
 	GLuint secondPassSSAOShader;
 	GLuint thirdPassSSAOShader;
 	GLuint finalPassSSAOShader;
+	GLuint shader2D;
 	Camera cam;
 
 	//framebuffers
@@ -70,5 +80,10 @@ private:
 		TYPE_SSAO,
 		TYPE_DEBUG,
 	} shadingType;
+
+	//UI
+	Button *phongShadingButton;
+	Button *SSAOShadingButton;
+	Button *debugShadingButton;
 };
 
