@@ -59,11 +59,13 @@ private:
 
 	//framebuffers
 	SSAOFirstPassFramebuffer *ssaoFirstBuffer;
-	SSAOSecondPassFramebuffer *ssaoSecondBuffer;
+	SSAOSecondPassFramebuffer *ssaoSecondBufferLowFreq; 
+	SSAOSecondPassFramebuffer *ssaoSecondBufferHighFreq;
 	SSAOThirdPassFramebuffer *ssaoThirdBuffer;
 
 	//SSAO kernel
-	SSAOKernel *ssaoKernel;
+	SSAOKernel *ssaoKernelLowFreq;
+	SSAOKernel *ssaoKernelHighFreq;
 
 	//SSAO noise
 	SSAONoiseTexture *ssaoNoiseTex;

@@ -94,21 +94,37 @@ void Scene::renderSSAO() {
 	
 
 	t1 = std::chrono::high_resolution_clock::now();
-	//second pass
-	ssaoSecondBuffer->bind();
+	//second pass low freq
+	ssaoSecondBufferLowFreq->bind();
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(secondPassSSAOShader);
 
 	ssaoFirstBuffer->positionTexture->Bind(GL_TEXTURE0);
-	ssaoFirstBuffer->normalTexture->Bind(GL_TEXTURE1); 
+	ssaoFirstBuffer->normalTexture->Bind(GL_TEXTURE1);
 	ssaoNoiseTex->Bind(GL_TEXTURE2);
-	ssaoKernel->pushToGPU(secondPassSSAOShader);
+	ssaoKernelLowFreq->pushToGPU(secondPassSSAOShader);
 	glUniformMatrix4fv(glGetUniformLocation(secondPassSSAOShader, "ProjectionMatrix"), 1, GL_FALSE, &(getProjectionMatrix()[0][0]));
-	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "kernelSize"), ssaoKernel->getSize());
+	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "kernelSize"), ssaoKernelLowFreq->getSize());
 	glUniform1f(glGetUniformLocation(secondPassSSAOShader, "radius"), 1.0f);
 	glUniform2f(glGetUniformLocation(secondPassSSAOShader, "noiseScale"), ssaoNoiseTex->getNoiseScale().x, ssaoNoiseTex->getNoiseScale().y);
 	quad->draw();
-	ssaoSecondBuffer->unbind();
+	ssaoSecondBufferLowFreq->unbind();
+
+	//second pass high freq
+	ssaoSecondBufferHighFreq->bind();
+	glClear(GL_COLOR_BUFFER_BIT);
+	glUseProgram(secondPassSSAOShader);
+
+	ssaoFirstBuffer->positionTexture->Bind(GL_TEXTURE0);
+	ssaoFirstBuffer->normalTexture->Bind(GL_TEXTURE1);
+	ssaoNoiseTex->Bind(GL_TEXTURE2);
+	ssaoKernelHighFreq->pushToGPU(secondPassSSAOShader);
+	glUniformMatrix4fv(glGetUniformLocation(secondPassSSAOShader, "ProjectionMatrix"), 1, GL_FALSE, &(getProjectionMatrix()[0][0]));
+	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "kernelSize"), ssaoKernelHighFreq->getSize());
+	glUniform1f(glGetUniformLocation(secondPassSSAOShader, "radius"), 5.0f);
+	glUniform2f(glGetUniformLocation(secondPassSSAOShader, "noiseScale"), ssaoNoiseTex->getNoiseScale().x, ssaoNoiseTex->getNoiseScale().y);
+	quad->draw();
+	ssaoSecondBufferHighFreq->unbind();
 	//std::cout << "Second pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
 
 
@@ -119,7 +135,10 @@ void Scene::renderSSAO() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(thirdPassSSAOShader);
 	glUniform1i(glGetUniformLocation(thirdPassSSAOShader, "blurSize"), 4);
-	ssaoSecondBuffer->ssaoTexture->Bind(GL_TEXTURE0);
+	glUniform1i(glGetUniformLocation(thirdPassSSAOShader, "ssaoTextureLowFreq"), 0);
+	glUniform1i(glGetUniformLocation(thirdPassSSAOShader, "ssaoTextureHighFreq"), 1);
+	ssaoSecondBufferLowFreq->ssaoTexture->Bind(GL_TEXTURE0);
+	ssaoSecondBufferHighFreq->ssaoTexture->Bind(GL_TEXTURE1);
 	quad->draw();
 	ssaoThirdBuffer->unbind();
 	//std::cout << "Third pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
@@ -143,7 +162,7 @@ void Scene::renderSSAO() {
 		//std::cout << "Last pass:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
 	}
 	else if (shadingType == TYPE_DEBUG) {
-		drawDebug(ssaoFirstBuffer->normalTexture, ssaoFirstBuffer->positionTexture, ssaoSecondBuffer->ssaoTexture, ssaoThirdBuffer->blurredSSAOTexture);
+		drawDebug(ssaoThirdBuffer->blurredSSAOTexture, ssaoFirstBuffer->normalTexture, ssaoSecondBufferLowFreq->ssaoTexture, ssaoSecondBufferHighFreq->ssaoTexture);
 	}
 }
 
@@ -182,8 +201,10 @@ void Scene::drawFPS(float dt) {
 void Scene::loadFramebuffers() {
 	ssaoFirstBuffer = new SSAOFirstPassFramebuffer();
 	ssaoFirstBuffer->create();
-	ssaoSecondBuffer = new SSAOSecondPassFramebuffer();
-	ssaoSecondBuffer->create();
+	ssaoSecondBufferLowFreq = new SSAOSecondPassFramebuffer();
+	ssaoSecondBufferLowFreq->create();
+	ssaoSecondBufferHighFreq = new SSAOSecondPassFramebuffer();
+	ssaoSecondBufferHighFreq->create();
 	ssaoThirdBuffer = new SSAOThirdPassFramebuffer();
 	ssaoThirdBuffer->create();
 }
@@ -216,7 +237,8 @@ void Scene::loadShaders() {
 }
 
 void Scene::loadOtherStuff() {
-	ssaoKernel = new SSAOKernel(64);
+	ssaoKernelLowFreq = new SSAOKernel(64);
+	ssaoKernelHighFreq = new SSAOKernel(64);
 	ssaoNoiseTex = new SSAONoiseTexture(4);
 	quad = new Simple2DQuad();
 	fpsText = new Text2D(0, SceneParameters::getScreenHeight() - 65);
