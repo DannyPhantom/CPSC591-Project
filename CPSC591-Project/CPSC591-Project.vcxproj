@@ -134,9 +134,11 @@
     <ClCompile Include="SSAONoiseTexture.cpp" />
     <ClCompile Include="SSAOSecondPassFramebuffer.cpp" />
     <ClCompile Include="SSAOThirdPassFramebuffer.cpp" />
+    <ClCompile Include="SSAOUI.cpp" />
     <ClCompile Include="Text2D.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TexturedObject2D.cpp" />
+    <ClCompile Include="TrackBar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Button.h" />
@@ -155,9 +157,11 @@
     <ClInclude Include="SSAONoiseTexture.h" />
     <ClInclude Include="SSAOSecondPassFramebuffer.h" />
     <ClInclude Include="SSAOThirdPassFramebuffer.h" />
+    <ClInclude Include="SSAOUI.h" />
     <ClInclude Include="Text2D.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="TexturedObject2D.h" />
+    <ClInclude Include="TrackBar.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\SSAOFirstPassFragment.glsl" />

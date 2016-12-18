@@ -53,6 +53,9 @@ void mouseMoveAnyway(int x, int y) {
 			glutWarpPointer(halfWidth, halfHeight);
 		}
 	}
+	else {
+		s.onMouseMove(2.0f * x / SceneParameters::getScreenWidth() - 1.0f, 2.0f * y / SceneParameters::getScreenHeight() - 1.0f);
+	}
 
 	glutPostRedisplay();
 }
@@ -72,6 +75,10 @@ void mouseClick(int button, int state, int x, int y) {
 
 		if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
 			s.onLeftMouseClick((float)x / screenWidth * 2 - 1, (float)y / screenHeight * 2 - 1);
+		}
+
+		if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+			s.onLeftMouseRelease();
 		}
 	}
 }

@@ -73,6 +73,9 @@ void Scene::drawDebug(Texture *t1, Texture *t2, Texture *t3, Texture *t4) {
 
 
 void Scene::renderSSAO() {
+	ssaoKernelLowFreq->setSize(ssaoUI->getFirstPassNumberOfSamples());
+	ssaoKernelHighFreq->setSize(ssaoUI->getSecondPassNumberOfSamples());
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -105,7 +108,7 @@ void Scene::renderSSAO() {
 	ssaoKernelLowFreq->pushToGPU(secondPassSSAOShader);
 	glUniformMatrix4fv(glGetUniformLocation(secondPassSSAOShader, "ProjectionMatrix"), 1, GL_FALSE, &(getProjectionMatrix()[0][0]));
 	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "kernelSize"), ssaoKernelLowFreq->getSize());
-	glUniform1f(glGetUniformLocation(secondPassSSAOShader, "radius"), 1.0f);
+	glUniform1f(glGetUniformLocation(secondPassSSAOShader, "radius"), ssaoUI->getFirstPassRadius());
 	glUniform2f(glGetUniformLocation(secondPassSSAOShader, "noiseScale"), ssaoNoiseTex->getNoiseScale().x, ssaoNoiseTex->getNoiseScale().y);
 	quad->draw();
 	ssaoSecondBufferLowFreq->unbind();
@@ -121,7 +124,7 @@ void Scene::renderSSAO() {
 	ssaoKernelHighFreq->pushToGPU(secondPassSSAOShader);
 	glUniformMatrix4fv(glGetUniformLocation(secondPassSSAOShader, "ProjectionMatrix"), 1, GL_FALSE, &(getProjectionMatrix()[0][0]));
 	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "kernelSize"), ssaoKernelHighFreq->getSize());
-	glUniform1f(glGetUniformLocation(secondPassSSAOShader, "radius"), 5.0f);
+	glUniform1f(glGetUniformLocation(secondPassSSAOShader, "radius"), ssaoUI->getSecondPassRadius());
 	glUniform2f(glGetUniformLocation(secondPassSSAOShader, "noiseScale"), ssaoNoiseTex->getNoiseScale().x, ssaoNoiseTex->getNoiseScale().y);
 	quad->draw();
 	ssaoSecondBufferHighFreq->unbind();
@@ -170,6 +173,10 @@ void Scene::renderUI() {
 	phongShadingButton->render(shader2D);
 	SSAOShadingButton->render(shader2D);
 	debugShadingButton->render(shader2D);
+
+	if (shadingType == TYPE_SSAO || shadingType == TYPE_DEBUG) {
+		ssaoUI->draw();
+	}
 }
 
 void Scene::renderScene(float dt) {
@@ -298,6 +305,8 @@ void Scene::setupUI() {
 	TexturedObject2D *debugShadingButtonTexturedObjectActive = new TexturedObject2D(debugShadingButtonTextureActive, glm::vec2(0.92, -0.92), 0.05, 0.04);
 	TexturedObject2D *debugShadingButtonTexturedObjectInactive = new TexturedObject2D(debugShadingButtonTextureInactive, glm::vec2(0.92, -0.92), 0.05, 0.04);
 	debugShadingButton = new Button(debugShadingButtonTexturedObjectInactive, debugShadingButtonTexturedObjectActive, this);
+
+	ssaoUI = new SSAOUI(shader2D);
 }
 
 glm::mat4 Scene::getProjectionMatrix() {
@@ -336,5 +345,14 @@ void Scene::onLeftMouseClick(float x, float y) {
 	//check for the shading type buttons first
 	phongShadingButton->mousePressed(x, y)
 		|| SSAOShadingButton->mousePressed(x, y)
-		|| debugShadingButton->mousePressed(x, y);
+		|| debugShadingButton->mousePressed(x, y)
+		|| ssaoUI->mousePressed(x, y);
+}
+
+void Scene::onLeftMouseRelease() {
+	ssaoUI->mouseReleased();
+}
+
+void Scene::onMouseMove(float x, float y) {
+	ssaoUI->mouseMoved(x, y);
 }

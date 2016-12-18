@@ -6,7 +6,7 @@ uniform sampler2D positionTexture;
 uniform sampler2D normalTexture;
 uniform sampler2D noiseTexture;
 
-uniform vec3 samples[64];
+uniform vec3 samples[256];
 
 // parameters
 uniform int kernelSize;

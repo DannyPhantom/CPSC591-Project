@@ -18,6 +18,7 @@ SSAOKernel::~SSAOKernel()
 }
 
 void SSAOKernel::generate() {
+	kernel.clear();
 	std::uniform_real_distribution<GLfloat> randomFloats(-1.0, 1.0); // generates random floats between -1.0 and 1.0
 	std::mt19937 MersenneTwisterPRNG(time(0));
 	for (int i = 0; i < kernelSize; ++i)
@@ -42,4 +43,11 @@ void SSAOKernel::pushToGPU(GLuint program) {
 
 int SSAOKernel::getSize() {
 	return kernelSize;
+}
+
+void SSAOKernel::setSize(int size) {
+	if (size != kernelSize) {
+		kernelSize = size;
+		generate();
+	}
 }

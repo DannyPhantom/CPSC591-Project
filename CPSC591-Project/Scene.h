@@ -13,6 +13,7 @@
 #include "Text2D.h"
 #include "Button.h"
 #include "ButtonCallback.h"
+#include "SSAOUI.h"
 #include <chrono>
 
 class Scene : public ButtonCallback
@@ -26,6 +27,8 @@ public:
 	Camera *getCamera() { return &cam; }
 
 	void onLeftMouseClick(float x, float y);
+	void onLeftMouseRelease();
+	void onMouseMove(float x, float y);
 
 	//ButtonCallback implementation
 	void onButtonClick(Button *button);
@@ -87,5 +90,6 @@ private:
 	Button *phongShadingButton;
 	Button *SSAOShadingButton;
 	Button *debugShadingButton;
+	SSAOUI *ssaoUI;
 };
 

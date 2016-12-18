@@ -12,6 +12,8 @@ public:
 
 	void pushToGPU(GLuint program);
 	int getSize();
+	void setSize(int size);
+
 private:
 	void generate();
 
