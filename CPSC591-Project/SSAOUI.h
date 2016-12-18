@@ -33,10 +33,18 @@ private:
 	TexturedObject2D *background;
 	TexturedObject2D *firstPassParamsText;
 	TexturedObject2D *firstPassParamsSamplesNumberText;
+	TexturedObject2D *firstPassParamsSamplesNumberMinText;
+	TexturedObject2D *firstPassParamsSamplesNumberMaxText;
 	TexturedObject2D *firstPassParamsRadiusText;
+	TexturedObject2D *firstPassParamsRadiusMinText;
+	TexturedObject2D *firstPassParamsRadiusMaxText;
 	TexturedObject2D *secondPassParamsText;
 	TexturedObject2D *secondPassParamsSamplesNumberText;
+	TexturedObject2D *secondPassParamsSamplesNumberMinText;
+	TexturedObject2D *secondPassParamsSamplesNumberMaxText;
 	TexturedObject2D *secondPassParamsRadiusText;
+	TexturedObject2D *secondPassParamsRadiusMinText;
+	TexturedObject2D *secondPassParamsRadiusMaxText;
 	TexturedObject2D *backgroundHidden;
 
 	TrackBar *firstPassNumberOfSamplesTrackbar;

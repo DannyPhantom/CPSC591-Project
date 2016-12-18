@@ -225,8 +225,6 @@ void Scene::loadShaders() {
 
 	firstPassSSAOShader = loader.loadShader("Shaders/SSAOFirstPassVertex.glsl", "Shaders/SSAOFirstPassFragment.glsl");
 	glUseProgram(firstPassSSAOShader);
-	glUniform1f(glGetUniformLocation(firstPassSSAOShader, "zNear"), SceneParameters::getZNear());
-	glUniform1f(glGetUniformLocation(firstPassSSAOShader, "zFar"), SceneParameters::getZFar());
 	glUniformMatrix4fv(glGetUniformLocation(firstPassSSAOShader, "ProjectionMatrix"), 1, false, &(getProjectionMatrix()[0][0]));
 
 	secondPassSSAOShader = loader.loadShader("Shaders/SSAOSimpleVertex.glsl", "Shaders/SSAOSecondPassFragment.glsl");
