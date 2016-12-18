@@ -2,7 +2,7 @@
 
 in vec2 texCoords;
 
-uniform sampler2D positionTexture;
+uniform sampler2D depthTexture;
 uniform sampler2D normalTexture;
 uniform sampler2D noiseTexture;
 
@@ -17,11 +17,21 @@ uniform vec2 noiseScale;
 
 // projection matrix
 uniform mat4 ProjectionMatrix;
+uniform mat4 InverseProjectionMatrix;
+
+vec4 getPositionFromDepth(vec2 textureCoords) {
+	vec2 texCoordsMinusOneToOne = vec2(textureCoords.x * 2.0f - 1.0f, textureCoords.y * 2.0f - 1.0f);
+	float zPosition = texture(depthTexture, textureCoords).x;
+	vec4 position = vec4(texCoordsMinusOneToOne.x, texCoordsMinusOneToOne.y, zPosition, 1.0f);
+	position = InverseProjectionMatrix * position;
+	position.xyz /= position.w;
+	return position;
+}
 
 void main()
 {
     // Get input for SSAO algorithm
-    vec3 position = texture(positionTexture, texCoords).xyz;
+	vec4 position = getPositionFromDepth(texCoords);
     vec3 normal = texture(normalTexture, texCoords).rgb;
     vec3 noiseVector = texture(noiseTexture, texCoords * noiseScale).xyz;
 
@@ -36,7 +46,7 @@ void main()
     {
         // get sample position
         vec3 sampleVec = TBN * samples[i]; // From tangent to view-space
-        sampleVec = position + sampleVec * radius;
+        sampleVec = position.xyz + sampleVec * radius;
         
         // project sample position (to sample texture) (to get position on screen/texture)
         vec4 offset = vec4(sampleVec, 1.0);
@@ -45,7 +55,7 @@ void main()
         offset.xyz = offset.xyz * 0.5 + 0.5; // transform to range 0.0 - 1.0
         
         // get sample depth
-        float sampleDepth = -texture(positionTexture, offset.xy).w; // Get depth value of kernel sample
+        float sampleDepth = getPositionFromDepth(offset.xy).z; // Get depth value of kernel sample
         
 		// range check & accumulate
 		float rangeCheck = smoothstep(0.0, 1.0, radius / abs(position.z - sampleDepth ));

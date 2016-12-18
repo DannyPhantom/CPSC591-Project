@@ -15,6 +15,14 @@ Scene::~Scene()
 }
 
 void Scene::initializeScene() {
+	projectionMatrix = glm::perspective(
+		glm::radians(90.0f),
+		1.0f * SceneParameters::getScreenWidth() / SceneParameters::getScreenHeight(),
+		SceneParameters::getZNear(),
+		SceneParameters::getZFar()
+	);
+	inverseProjectionMatrix = glm::inverse(projectionMatrix);
+
 	loadShaders();
 	loadFramebuffers();
 	loadObjects();
@@ -86,8 +94,6 @@ void Scene::renderSSAO() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(firstPassSSAOShader);
 
-	glUniformMatrix4fv(glGetUniformLocation(firstPassSSAOShader, "ProjectionMatrix"), 1, false, &(getProjectionMatrix()[0][0]));
-
 	for (SceneObject *obj : objects) {
 		obj->draw(firstPassSSAOShader, cam.getViewMatrix());
 	}
@@ -102,11 +108,10 @@ void Scene::renderSSAO() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(secondPassSSAOShader);
 
-	ssaoFirstBuffer->positionTexture->Bind(GL_TEXTURE0);
+	ssaoFirstBuffer->depthTexture->Bind(GL_TEXTURE0);
 	ssaoFirstBuffer->normalTexture->Bind(GL_TEXTURE1);
 	ssaoNoiseTex->Bind(GL_TEXTURE2);
 	ssaoKernelLowFreq->pushToGPU(secondPassSSAOShader);
-	glUniformMatrix4fv(glGetUniformLocation(secondPassSSAOShader, "ProjectionMatrix"), 1, GL_FALSE, &(getProjectionMatrix()[0][0]));
 	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "kernelSize"), ssaoKernelLowFreq->getSize());
 	glUniform1f(glGetUniformLocation(secondPassSSAOShader, "radius"), ssaoUI->getFirstPassRadius());
 	glUniform2f(glGetUniformLocation(secondPassSSAOShader, "noiseScale"), ssaoNoiseTex->getNoiseScale().x, ssaoNoiseTex->getNoiseScale().y);
@@ -118,11 +123,10 @@ void Scene::renderSSAO() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(secondPassSSAOShader);
 
-	ssaoFirstBuffer->positionTexture->Bind(GL_TEXTURE0);
+	ssaoFirstBuffer->depthTexture->Bind(GL_TEXTURE0);
 	ssaoFirstBuffer->normalTexture->Bind(GL_TEXTURE1);
 	ssaoNoiseTex->Bind(GL_TEXTURE2);
 	ssaoKernelHighFreq->pushToGPU(secondPassSSAOShader);
-	glUniformMatrix4fv(glGetUniformLocation(secondPassSSAOShader, "ProjectionMatrix"), 1, GL_FALSE, &(getProjectionMatrix()[0][0]));
 	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "kernelSize"), ssaoKernelHighFreq->getSize());
 	glUniform1f(glGetUniformLocation(secondPassSSAOShader, "radius"), ssaoUI->getSecondPassRadius());
 	glUniform2f(glGetUniformLocation(secondPassSSAOShader, "noiseScale"), ssaoNoiseTex->getNoiseScale().x, ssaoNoiseTex->getNoiseScale().y);
@@ -138,8 +142,6 @@ void Scene::renderSSAO() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(thirdPassSSAOShader);
 	glUniform1i(glGetUniformLocation(thirdPassSSAOShader, "blurSize"), 4);
-	glUniform1i(glGetUniformLocation(thirdPassSSAOShader, "ssaoTextureLowFreq"), 0);
-	glUniform1i(glGetUniformLocation(thirdPassSSAOShader, "ssaoTextureHighFreq"), 1);
 	ssaoSecondBufferLowFreq->ssaoTexture->Bind(GL_TEXTURE0);
 	ssaoSecondBufferHighFreq->ssaoTexture->Bind(GL_TEXTURE1);
 	quad->draw();
@@ -225,14 +227,20 @@ void Scene::loadShaders() {
 	glUseProgram(firstPassSSAOShader);
 	glUniform1f(glGetUniformLocation(firstPassSSAOShader, "zNear"), SceneParameters::getZNear());
 	glUniform1f(glGetUniformLocation(firstPassSSAOShader, "zFar"), SceneParameters::getZFar());
+	glUniformMatrix4fv(glGetUniformLocation(firstPassSSAOShader, "ProjectionMatrix"), 1, false, &(getProjectionMatrix()[0][0]));
 
 	secondPassSSAOShader = loader.loadShader("Shaders/SSAOSimpleVertex.glsl", "Shaders/SSAOSecondPassFragment.glsl");
 	glUseProgram(secondPassSSAOShader);
-	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "positionTexture"), 0);
+	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "depthTexture"), 0);
 	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "normalTexture"), 1);
-	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "noiseTexture"), 2);
+	glUniform1i(glGetUniformLocation(secondPassSSAOShader, "noiseTexture"), 2); 
+	glUniformMatrix4fv(glGetUniformLocation(secondPassSSAOShader, "ProjectionMatrix"), 1, GL_FALSE, &(getProjectionMatrix()[0][0]));
+	glUniformMatrix4fv(glGetUniformLocation(secondPassSSAOShader, "InverseProjectionMatrix"), 1, GL_FALSE, &(getInverseProjectionMatrix()[0][0]));
 
 	thirdPassSSAOShader = loader.loadShader("Shaders/SSAOSimpleVertex.glsl", "Shaders/SSAOThirdPassFragment.glsl");
+	glUseProgram(thirdPassSSAOShader);
+	glUniform1i(glGetUniformLocation(thirdPassSSAOShader, "ssaoTextureLowFreq"), 0);
+	glUniform1i(glGetUniformLocation(thirdPassSSAOShader, "ssaoTextureHighFreq"), 1);
 
 	finalPassSSAOShader = loader.loadShader("Shaders/SSAOSimpleVertex.glsl", "Shaders/SSAOLastPassFragment.glsl");
 	glUseProgram(finalPassSSAOShader);
@@ -310,12 +318,11 @@ void Scene::setupUI() {
 }
 
 glm::mat4 Scene::getProjectionMatrix() {
-	return glm::perspective(
-		glm::radians(90.0f),
-		1.0f * SceneParameters::getScreenWidth() / SceneParameters::getScreenHeight(),
-		SceneParameters::getZNear(),
-		SceneParameters::getZFar()
-	);
+	return projectionMatrix;
+}
+
+glm::mat4 Scene::getInverseProjectionMatrix() {
+	return inverseProjectionMatrix;
 }
 
 void Scene::onButtonClick(Button *button) {

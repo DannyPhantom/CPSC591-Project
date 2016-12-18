@@ -12,10 +12,9 @@ public:
 	void create();
 
 public:
-	Texture *positionTexture;
+	Texture *depthTexture;
 	Texture *normalTexture;
 	Texture *colorTexture;
 	Texture *specularTexture;
-	Texture *depthTexture;
 };
 

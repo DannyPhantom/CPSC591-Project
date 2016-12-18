@@ -17,7 +17,6 @@ out VS_OUT
     vec3 V;
     vec4 C;
     vec2 uv;
-	vec3 positionCameraSpace;
 } vs_out;
 
 // Position of light
@@ -27,7 +26,6 @@ void main(void)
 {
     // Calculate view-space coordinate
     vec4 P = ModelViewMatrix * vec4(position_attr, 1);
-	vs_out.positionCameraSpace = P.xyz;
 
     // Calculate normal in view-space
     vs_out.N = NormalMatrix * normal_attr;

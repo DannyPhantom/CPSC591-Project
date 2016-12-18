@@ -42,6 +42,7 @@ private:
 	void setupUI();
 	void placeObjects();
 	glm::mat4 getProjectionMatrix();
+	glm::mat4 getInverseProjectionMatrix();
 	void renderPhong();
 	void renderSSAO();
 	void renderUI();
@@ -51,7 +52,10 @@ private:
 
 private:
 	std::vector<SceneObject *> objects;
+	glm::mat4 projectionMatrix;
+	glm::mat4 inverseProjectionMatrix;
 
+	//shaders
 	GLuint basicPhongShader;
 	GLuint firstPassSSAOShader;
 	GLuint secondPassSSAOShader;
