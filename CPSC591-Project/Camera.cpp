@@ -81,3 +81,7 @@ void Camera::update(float dt) {
 glm::vec3 Camera::getPosition() {
 	return position;
 }
+
+glm::vec3 Camera::getViewDirection() {
+	return direction;
+}

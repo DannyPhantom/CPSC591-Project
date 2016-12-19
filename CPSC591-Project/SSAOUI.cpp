@@ -59,7 +59,7 @@ void SSAOUI::setup() {
 	firstPassNumberOfSamplesTrackbar = new TrackBar(8, 256, 0.17, 0.015, program);
 	firstPassNumberOfSamplesTrackbar->setCenter(glm::vec2(0.75, 0.8));
 	firstPassNumberOfSamplesTrackbar->setColor(glm::vec3(0.3, 0.3, 0.3));
-	firstPassNumberOfSamplesTrackbar->setCurrentValue(64);
+	firstPassNumberOfSamplesTrackbar->setCurrentValue(32);
 
 	Texture *firstPassParamsSamplesNumberMinTextTexture = new Texture(GL_TEXTURE_2D, "Textures/8.png");
 	firstPassParamsSamplesNumberMinTextTexture->Load();
@@ -97,7 +97,7 @@ void SSAOUI::setup() {
 	secondPassNumberOfSamplesTrackbar = new TrackBar(8, 256, 0.17, 0.015, program);
 	secondPassNumberOfSamplesTrackbar->setCenter(glm::vec2(0.75, 0.45));
 	secondPassNumberOfSamplesTrackbar->setColor(glm::vec3(0.3, 0.3, 0.3));
-	secondPassNumberOfSamplesTrackbar->setCurrentValue(64);
+	secondPassNumberOfSamplesTrackbar->setCurrentValue(32);
 
 	Texture *secondPassParamsSamplesNumberMinTextTexture = new Texture(GL_TEXTURE_2D, "Textures/8.png");
 	secondPassParamsSamplesNumberMinTextTexture->Load();

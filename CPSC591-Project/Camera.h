@@ -20,6 +20,7 @@ public:
 	void update(float dt);
 
 	glm::vec3 getPosition();
+	glm::vec3 getViewDirection();
 
 private:
 	glm::vec3 position;

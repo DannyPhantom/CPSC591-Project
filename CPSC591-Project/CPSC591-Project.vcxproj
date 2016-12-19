@@ -120,9 +120,11 @@
   <ItemGroup>
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DynamicObjectCreationUI.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="ObjectToCameraSnapper.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="ObjLoader.cpp" />
@@ -144,8 +146,10 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="ButtonCallback.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="DynamicObjectCreationUI.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="ObjectToCameraSnapper.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneObject.h" />
     <ClInclude Include="ObjLoader.h" />

@@ -41,7 +41,7 @@ void Scene::renderPhong() {
 
 	glUniformMatrix4fv(glGetUniformLocation(basicPhongShader, "ProjectionMatrix"), 1, false, &(getProjectionMatrix()[0][0]));
 
-	for (SceneObject *obj : objects) {
+	for (SceneObject *obj : objectsToRender) {
 		obj->draw(basicPhongShader, cam.getViewMatrix());
 	}
 	//std::cout << "Phong:" << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() << std::endl;
@@ -94,7 +94,7 @@ void Scene::renderSSAO() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(firstPassSSAOShader);
 
-	for (SceneObject *obj : objects) {
+	for (SceneObject *obj : objectsToRender) {
 		obj->draw(firstPassSSAOShader, cam.getViewMatrix());
 	}
 
@@ -176,6 +176,7 @@ void Scene::renderUI() {
 	SSAOShadingButton->render(shader2D);
 	debugShadingButton->render(shader2D);
 
+	objCreationUI->draw();
 	if (shadingType == TYPE_SSAO || shadingType == TYPE_DEBUG) {
 		ssaoUI->draw();
 	}
@@ -183,6 +184,8 @@ void Scene::renderUI() {
 
 void Scene::renderScene(float dt) {
 	cam.update(dt);
+	addDynamicObject();
+	snapper->update();
 
 	if (shadingType == TYPE_PHONG) {
 		renderPhong();
@@ -256,31 +259,29 @@ void Scene::loadOtherStuff() {
 	quad = new Simple2DQuad();
 	fpsText = new Text2D(0, SceneParameters::getScreenHeight() - 65);
 	fpsText->setString("FPS");
+	snapper = new ObjectToCameraSnapper(&cam);
 }
 
 void Scene::loadObjects() {
 	ObjLoader loader;
-	objects.push_back(loader.loadFromFile("Models/bunny.obj")); 
-	objects.push_back(loader.loadFromFile("Models/f16.obj"));
 	objects.push_back(loader.loadFromFile("Models/The City.obj"));
 	objects.push_back(loader.loadFromFile("Models/Skybox.obj"));
+	objects.push_back(loader.loadFromFile("Models/bunny.obj"));
+	objects.push_back(loader.loadFromFile("Models/teapot.obj"));
+	objects.push_back(loader.loadFromFile("Models/Tree.obj"));
+	objects.push_back(loader.loadFromFile("Models/Grass_02.obj"));
+
+	objectsToRender.push_back(new SceneObject(*objects[0]));
+	objectsToRender.push_back(new SceneObject(*objects[1]));
 }
 
 void Scene::placeObjects() {
-	//bunny
-	objects[0]->setPosition(glm::vec3(9, 9, 0));
-	objects[0]->setScale(glm::vec3(1, 1, 1));
-
-	//f16
-	objects[1]->setPosition(glm::vec3(0, 9, 0));
-	objects[1]->setScale(glm::vec3(1, 1, 1));
-
 	//city
-	objects[2]->setScale(glm::vec3(0.1, 0.1, 0.1));
+	objectsToRender[0]->setScale(glm::vec3(0.1, 0.1, 0.1));
 
 	//skybox
-	objects[3]->setScale(glm::vec3(0.002, 0.002, 0.002));
-	objects[3]->setPosition(glm::vec3(0, -50, 0));
+	objectsToRender[1]->setScale(glm::vec3(0.002, 0.002, 0.002));
+	objectsToRender[1]->setPosition(glm::vec3(0, -50, 0));
 }
 
 void Scene::setupUI() {
@@ -313,6 +314,7 @@ void Scene::setupUI() {
 	debugShadingButton = new Button(debugShadingButtonTexturedObjectInactive, debugShadingButtonTexturedObjectActive, this);
 
 	ssaoUI = new SSAOUI(shader2D);
+	objCreationUI = new DynamicObjectCreationUI(shader2D);
 }
 
 glm::mat4 Scene::getProjectionMatrix() {
@@ -345,19 +347,49 @@ void Scene::onButtonRelease(Button *button) {
 
 }
 
+void Scene::onLeftMouseClickMoveMode() {
+	snapper->stopSnapping();
+}
+
 
 void Scene::onLeftMouseClick(float x, float y) {
 	//check for the shading type buttons first
 	phongShadingButton->mousePressed(x, y)
 		|| SSAOShadingButton->mousePressed(x, y)
 		|| debugShadingButton->mousePressed(x, y)
-		|| ssaoUI->mousePressed(x, y);
+		|| ssaoUI->mousePressed(x, y)
+		|| objCreationUI->mousePressed(x, y);
 }
 
 void Scene::onLeftMouseRelease() {
 	ssaoUI->mouseReleased();
+	objCreationUI->mouseReleased();
 }
 
 void Scene::onMouseMove(float x, float y) {
 	ssaoUI->mouseMoved(x, y);
+}
+
+void Scene::addDynamicObject() {
+	std::string objectToCreate = objCreationUI->popQueuedObject();
+	if (objectToCreate.compare("") != 0) {
+		if (objectToCreate.compare("Bunny") == 0) {
+			objectsToRender.push_back(new SceneObject(*objects[2]));
+			snapper->snapObject(objectsToRender[objectsToRender.size() - 1]);
+		}
+		if (objectToCreate.compare("Teapot") == 0) {
+			objectsToRender.push_back(new SceneObject(*objects[3]));
+			snapper->snapObject(objectsToRender[objectsToRender.size() - 1]);
+		}
+		if (objectToCreate.compare("Tree") == 0) {
+			SceneObject *tree = new SceneObject(*objects[4]);
+			tree->setScale(glm::vec3(0.1, 0.1, 0.1));
+			objectsToRender.push_back(tree);
+			snapper->snapObject(tree);
+		}
+		if (objectToCreate.compare("Grass") == 0) {
+			objectsToRender.push_back(new SceneObject(*objects[5]));
+			snapper->snapObject(objectsToRender[objectsToRender.size() - 1]);
+		}
+	}
 }

@@ -81,6 +81,9 @@ void mouseClick(int button, int state, int x, int y) {
 			s.onLeftMouseRelease();
 		}
 	}
+	else {
+		s.onLeftMouseClickMoveMode();
+	}
 }
 
 void pressKey(unsigned char key, int x, int y) {

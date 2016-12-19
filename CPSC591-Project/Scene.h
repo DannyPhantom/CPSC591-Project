@@ -14,7 +14,10 @@
 #include "Button.h"
 #include "ButtonCallback.h"
 #include "SSAOUI.h"
+#include "DynamicObjectCreationUI.h"
 #include <chrono>
+#include <string>
+#include "ObjectToCameraSnapper.h"
 
 class Scene : public ButtonCallback
 {
@@ -27,6 +30,7 @@ public:
 	Camera *getCamera() { return &cam; }
 
 	void onLeftMouseClick(float x, float y);
+	void onLeftMouseClickMoveMode();
 	void onLeftMouseRelease();
 	void onMouseMove(float x, float y);
 
@@ -46,12 +50,15 @@ private:
 	void renderPhong();
 	void renderSSAO();
 	void renderUI();
+	void addDynamicObject();
 	
 	void drawFPS(float dt);
 	void drawDebug(Texture *t1, Texture *t2, Texture *t3, Texture *t4);
 
 private:
 	std::vector<SceneObject *> objects;
+	std::vector<SceneObject *> objectsToRender;
+
 	glm::mat4 projectionMatrix;
 	glm::mat4 inverseProjectionMatrix;
 
@@ -95,5 +102,9 @@ private:
 	Button *SSAOShadingButton;
 	Button *debugShadingButton;
 	SSAOUI *ssaoUI;
+	DynamicObjectCreationUI *objCreationUI;
+
+	//Snapper
+	ObjectToCameraSnapper *snapper;
 };
 
