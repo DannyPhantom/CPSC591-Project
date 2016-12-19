@@ -82,7 +82,17 @@ void mouseClick(int button, int state, int x, int y) {
 		}
 	}
 	else {
-		s.onLeftMouseClickMoveMode();
+		if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+			s.onLeftMouseClickMoveMode();
+		}
+		//wheel scroll up
+		else if (button == 3) {
+			s.onWheelScrollUp();
+		}
+		//wheel scroll down
+		else if (button == 4) {
+			s.onWheelScrollDown();
+		}
 	}
 }
 
@@ -125,11 +135,11 @@ void releaseKey(unsigned char key, int x, int y) {
 	}
 
 	switch (key) {
-	case 'p':
-		std::cout << s.getCamera()->getPosition().x << " " << s.getCamera()->getPosition().y << " " << s.getCamera()->getPosition().z << std::endl;
-		break;
 	case 'm':
 		toggleMouseMode();
+		break;
+	case 127:					//delete button
+		s.deleteLastObject();
 		break;
 	}
 
@@ -158,8 +168,6 @@ int main(int argc, char **argv) {
 
 	//initialize opengl functions
 	glewInit();
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_MULTISAMPLE);

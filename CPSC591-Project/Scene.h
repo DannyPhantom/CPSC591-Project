@@ -33,6 +33,10 @@ public:
 	void onLeftMouseClickMoveMode();
 	void onLeftMouseRelease();
 	void onMouseMove(float x, float y);
+	void onWheelScrollUp();
+	void onWheelScrollDown();
+
+	void deleteLastObject();
 
 	//ButtonCallback implementation
 	void onButtonClick(Button *button);

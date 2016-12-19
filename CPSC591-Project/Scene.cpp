@@ -393,3 +393,22 @@ void Scene::addDynamicObject() {
 		}
 	}
 }
+
+void Scene::onWheelScrollUp() {
+	if (snapper->isObjectSnapped()) {
+		snapper->getSnappedObject()->updateScale(glm::vec3(0.01, 0.01, 0.01));
+	}
+}
+
+void Scene::onWheelScrollDown() {
+	if (snapper->isObjectSnapped()) {
+		snapper->getSnappedObject()->updateScale(glm::vec3(-0.01, -0.01, -0.01));
+	}
+}
+
+void Scene::deleteLastObject() {
+	if (objectsToRender.size() > 2) {
+		delete objectsToRender.back();
+		objectsToRender.pop_back();
+	}
+}
