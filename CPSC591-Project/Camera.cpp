@@ -26,7 +26,7 @@ void Camera::addAngles(float phi, float theta) {
 	this->phi -= phi;
 	this->theta += theta;
 
-	
+	//set limits to the view direction (in both horizontal and vertical directions)
 	if (this->phi < -70) {
 		this->phi = -70;
 	}
@@ -49,6 +49,7 @@ glm::mat4 Camera::getViewMatrix() {
 }
 
 void Camera::processMouseMovement(int dx, int dy) {
+	//ignore sudden mouse movements
 	if (dx > 200 || dy > 200 || dx < -200 || dy < -200) {
 		return;
 	}
@@ -59,6 +60,7 @@ void Camera::processMouseMovement(int dx, int dy) {
 }
 
 void Camera::update(float dt) {
+	//move the camera in the requested directions
 	if (shouldBeMovedBackwards) {
 		position -= direction * cameraMovementSpeed * dt;
 	}

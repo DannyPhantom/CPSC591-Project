@@ -15,15 +15,19 @@ SSAONoiseTexture::~SSAONoiseTexture()
 }
 
 void SSAONoiseTexture::generate() {
+	//define the random number generator
 	std::uniform_real_distribution<GLfloat> randomFloats(-1.0, 1.0); // generates random floats between 0 and 1.0
 	std::mt19937 MersenneTwisterPRNG(time(0));
 
+	//generate a set of random vectors in the XZ plane (since we rotate the hemisphere samples
+	//in XZ plane only
 	for (GLuint i = 0; i < noiseDimension * noiseDimension; i++)
 	{
 		glm::vec3 noiseVec(randomFloats(MersenneTwisterPRNG), 0.0f, randomFloats(MersenneTwisterPRNG));
 		noise.push_back(glm::normalize(noiseVec));
 	}
 
+	//create the texture and load the data into it
 	glGenTextures(1, &textureObj);
 	glBindTexture(textureTarget, textureObj);
 	glTexImage2D(textureTarget, 0, GL_RGB16F, noiseDimension, noiseDimension, 0, GL_RGB, GL_FLOAT, &noise[0]);

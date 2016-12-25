@@ -26,13 +26,15 @@ void Simple2DQuad::create() {
 		1.0f, 1.0f,
 		1.0f, 0.0f,
 	};
-	// Setup plane VAO
+	// Create VBO's
 	GLuint vboVerts, vboUvs;
 
+	//VBO for verts
 	glGenBuffers(1, &vboVerts);
 	glBindBuffer(GL_ARRAY_BUFFER, vboVerts);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(verts), &verts, GL_STATIC_DRAW);
 
+	//VBO for UV's
 	glGenBuffers(1, &vboUvs);
 	glBindBuffer(GL_ARRAY_BUFFER, vboUvs);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(uvs), &uvs, GL_STATIC_DRAW);
@@ -41,7 +43,6 @@ void Simple2DQuad::create() {
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
-
 
 	glBindBuffer(GL_ARRAY_BUFFER, vboVerts);
 	glEnableVertexAttribArray(0);

@@ -14,17 +14,33 @@
 #include <iostream>
 #include <string>
 
+/*
+	Loads an object from a file.
+	Uses ASSIMP as its underlying library
+*/
 class ObjLoader
 {
 public:
 	ObjLoader();
 	~ObjLoader();
+
+	/*
+		Loads an object from the given file
+	*/
 	SceneObject *loadFromFile(const char* fileName);
+
+	/*
+		Loads an object from the given file
+	*/
 	SceneObject *loadFromFile(std::string fileName);
 
 private:
+	//directory where the file is stored
 	std::string directory;
 
+	/*
+		Processes the scene retrieved from the file.
+	*/
 	SceneObject *processScene(const aiScene *scene);
 };
 

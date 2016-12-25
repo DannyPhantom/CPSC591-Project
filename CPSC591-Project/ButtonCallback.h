@@ -1,10 +1,3 @@
-/*
- * ButtonCallback.h
- *
- *  Created on: 2016-10-29
- *      Author: dannyphantom
- */
-
 #ifndef BUTTONCALLBACK_H_
 #define BUTTONCALLBACK_H_
 

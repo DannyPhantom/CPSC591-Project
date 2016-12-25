@@ -16,6 +16,9 @@ void SSAOSecondPassFramebuffer::create() {
 	bind();
 
 	//SSAO texture
+	/*
+		For implementation details @see SSAOFirstPassFramebuffer::create()
+	*/
 	GLuint ssaoTex;
 	glGenTextures(1, &ssaoTex);
 	glBindTexture(GL_TEXTURE_2D, ssaoTex);

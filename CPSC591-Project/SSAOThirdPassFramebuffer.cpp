@@ -16,6 +16,9 @@ void SSAOThirdPassFramebuffer::create() {
 	bind();
 
 	//SSAO texture
+	/*
+		For implementation details @see SSAOFirstPassFramebuffer::create()
+	*/
 	GLuint blurredSSAOTex;
 	glGenTextures(1, &blurredSSAOTex);
 	glBindTexture(GL_TEXTURE_2D, blurredSSAOTex);

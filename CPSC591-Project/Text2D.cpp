@@ -21,6 +21,7 @@ Text2D::~Text2D()
 void Text2D::draw() {
 	glUseProgram(0);
 
+	//2D simple setup. Nothing fancy
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
@@ -29,12 +30,14 @@ void Text2D::draw() {
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 
+	//change the channels so that the font is rendered in red
 	float red = 1, green = 0, blue = 0, alpha = 1;
 
 	glPixelTransferf(GL_RED_BIAS, red - 1);
 	glPixelTransferf(GL_GREEN_BIAS, green - 1);
 	glPixelTransferf(GL_BLUE_BIAS, blue - 1);
 
+	//render the string
 	font->Render(stringToRender.c_str(), -1, FTPoint(pos.x - xOffset / 2, pos.y - yOffset / 2, 0));
 	glPopAttrib();
 }
@@ -42,6 +45,8 @@ void Text2D::draw() {
 
 void Text2D::setString(std::string toRender) {
 	stringToRender = toRender;
+
+	//calculate offsets if we need the font to be centered
 	if (isCenterized) {
 		xOffset = font->BBox(stringToRender.c_str(), -1, FTPoint()).Upper().X() - font->BBox(stringToRender.c_str(), -1, FTPoint()).Lower().X();
 		yOffset = font->BBox(stringToRender.c_str(), -1, FTPoint()).Upper().Y() - font->BBox(stringToRender.c_str(), -1, FTPoint()).Lower().Y();

@@ -14,6 +14,7 @@ ShaderLoader::~ShaderLoader()
 }
 
 std::string ShaderLoader::readFile(const char * filename) {
+	//create the stream
 	std::ifstream ifs(filename);
 
 	if (ifs.fail()) {
@@ -21,6 +22,7 @@ std::string ShaderLoader::readFile(const char * filename) {
 		return "";
 	}
 
+	//read file contents
 	std::string fileContents = std::string((std::istreambuf_iterator<char>(ifs)),
 		(std::istreambuf_iterator<char>()));
 

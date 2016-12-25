@@ -15,8 +15,10 @@ Texture::Texture(GLenum TextureTarget, GLuint TextureObject) {
 
 bool Texture::Load()
 {
+	//Use STBI to load to the texture into an array of data
 	int width, height, n;
 	unsigned char* data = stbi_load(fileName.c_str(), &width, &height, &n, 4); // request RGBA
+	//generate the texture and set the parameters
 	if (data != NULL)
 	{
 		glGenTextures(1, &textureObj);

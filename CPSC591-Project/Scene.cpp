@@ -7,6 +7,7 @@
 
 Scene::Scene()
 {
+	//default shading type is SSAO
 	shadingType = TYPE_SSAO;
 }
 
@@ -15,14 +16,18 @@ Scene::~Scene()
 }
 
 void Scene::initializeScene() {
+	//define the projection matrix (it's constant and never changes)
 	projectionMatrix = glm::perspective(
 		glm::radians(90.0f),
 		1.0f * SceneParameters::getScreenWidth() / SceneParameters::getScreenHeight(),
 		SceneParameters::getZNear(),
 		SceneParameters::getZFar()
 	);
+
+	//define the inverse of the projection matrix
 	inverseProjectionMatrix = glm::inverse(projectionMatrix);
 
+	//load all the stuff
 	loadShaders();
 	loadFramebuffers();
 	loadObjects();
@@ -183,8 +188,13 @@ void Scene::renderUI() {
 }
 
 void Scene::renderScene(float dt) {
+	//update the camera's position
 	cam.update(dt);
+
+	//add objects to the scene if requested by the user
 	addDynamicObject();
+
+	//update the currently snapped object, if any
 	snapper->update();
 
 	if (shadingType == TYPE_PHONG) {
@@ -194,6 +204,7 @@ void Scene::renderScene(float dt) {
 		renderSSAO();
 	}
 
+	//render UI
 	drawFPS(dt);
 	renderUI();
 }
@@ -203,6 +214,7 @@ void Scene::drawFPS(float dt) {
 		std::chrono::system_clock::now().time_since_epoch()
 		);
 
+	//we update the FPS string only every 100 milliseconds (otherwise it's hard to read)
 	if (currentTime - lastFPSTime > std::chrono::milliseconds(100)) {
 		fpsText->setString(("FPS " + std::to_string((int)floor(1 / dt))));
 		lastFPSTime = currentTime;

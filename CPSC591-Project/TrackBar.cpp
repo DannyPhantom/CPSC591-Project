@@ -118,11 +118,6 @@ float TrackBar::getCurrentValue() {
 	return this->currentValue;
 }
 
-/**
- * This function identifies if the mouse click happened on the slider.
- * If so, it is "stuck" to the current trackbar and all the mouse movements
- * will now affect the value of the trackbar
- */
 bool TrackBar::mousePressed(float x, float y) {
 	//find the position of the slider
 	glm::vec3 circlePos = glm::vec3(center.x - width * 0.9 + width * 1.8 * (currentValue - minValue) / (maxValue - minValue), center.y, -0.1);
@@ -149,10 +144,6 @@ bool TrackBar::getMouseStuck() {
 	return mouseStuck;
 }
 
-/**
- * When we are "stuck" to the trackbar, then all the mouse movements
- * have to be translated to the new current value for this trackbar
- */
 void TrackBar::setNewMousePosition(float x, float y) {
 	if (mouseStuck) {
 		//we care only about x, not y

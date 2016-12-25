@@ -113,6 +113,7 @@ SceneObject *ObjLoader::processScene(const aiScene *scene) {
 		model->addMesh(newMesh);
 	}
 
+	//setup model's VBO's and VAO's
 	model->setupVBOs();
 	model->setupVAOs();
 

@@ -32,16 +32,57 @@ public:
 	TrackBar(float minValue, float maxValue, float width, float height, GLuint program);
 	virtual ~TrackBar();
 
+	/*
+		Sets the current value of the trackar
+	*/
 	void setCurrentValue(float value);
+
+	/*
+		Sets the color of the outer rectangle
+	*/
 	void setColor(glm::vec3 color);
+
+	/*
+		Sets the center position of the trackbar
+	*/
 	void setCenter(glm::vec2 center);
+
+	/*
+		Renders the trackbar to the screen
+	*/
 	void render();
 
+
+	/**
+	* This function identifies if the mouse click happened on the slider.
+	* If so, it is "stuck" to the current trackbar and all the mouse movements
+	* will now affect the value of the trackbar
+	*/
 	bool mousePressed(float x, float y);
+
+	/*
+	* This function makes the mouse become unstuck from 
+	* the current trackbar, so that any mouse movement
+	* leave the trackbar unaffected until it is clicked
+	* again
+	*/
 	void mouseReleased();
+
+	/**
+	* When we are "stuck" to the trackbar, then all the mouse movements
+	* have to be translated to the new current value for this trackbar
+	*/
 	void setNewMousePosition(float x, float y);
 
+	/*
+		Returns the current value of the trackbar
+	*/
 	float getCurrentValue();
+
+	/*
+		Identifies whether the mouse is stuck to the current
+		trackbar
+	*/
 	bool getMouseStuck();
 
 };

@@ -1,10 +1,3 @@
-/*
- * Button.cpp
- *
- *  Created on: 2016-10-29
- *      Author: dannyphantom
- */
-
 #include "Button.h"
 
 Button::Button(TexturedObject2D *buttonNormal, TexturedObject2D *buttonClicked, ButtonCallback *callback) {
@@ -41,11 +34,13 @@ bool Button::mousePressed(float x, float y) {
 	float height = buttonNormal -> getHeight();
 	float width = buttonNormal -> getWidth();
 
+	//if the click happened on the button
 	if (x < pos.x + width
 			&& x > pos.x - width
 			&& -y < pos.y + height
 			&& -y > pos.y - height) {
-
+		//then we change the button's state,
+		//call the callback and set the mouse to be "stuck"
 		isMouseStuck = true;
 		currentState = BUTTON_STATE_CLICKED;
 		callback -> onButtonClick(this);

@@ -16,6 +16,7 @@ void ObjectToCameraSnapper::snapObject(SceneObject *obj) {
 }
 
 void ObjectToCameraSnapper::update() {
+	//update position of the snapped object, if one exists
 	if (obj != NULL) {
 		obj->setPosition(cam->getPosition() + cam->getViewDirection() * 7.0f);
 	}

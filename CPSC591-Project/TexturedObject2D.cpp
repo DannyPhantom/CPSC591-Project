@@ -1,10 +1,3 @@
-/*
- * TexturedObject2D.cpp
- *
- *  Created on: 2016-10-28
- *      Author: dannyphantom
- */
-
 #include "TexturedObject2D.h"
 
 TexturedObject2D::TexturedObject2D(Texture *tex, glm::vec2 pos, float width, float height) :
@@ -81,7 +74,10 @@ void TexturedObject2D::draw(GLuint program) {
 	//pass in the model matrix
 	translation = glm::translate(identity,
 			glm::vec3(pos.x, pos.y, 0.0f));
+
+	//scale in y negatively if y is flipped
 	scale = glm::scale(identity, glm::vec3(width, (yFlipped ? -1 : 1 ) * height, 1.0));
+
 	modelMatrix = translation * scale;
 	glUniformMatrix4fv(glGetUniformLocation(program, "modelMatrix"), 1,
 			GL_FALSE, glm::value_ptr(modelMatrix));

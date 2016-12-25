@@ -17,31 +17,38 @@ SSAOFirstPassFramebuffer::~SSAOFirstPassFramebuffer()
 }
 
 void SSAOFirstPassFramebuffer::create() {
+	//create and bind the framebuffer
 	Framebuffer::create();
 	bind();
 
 
 	GLuint depthTex, normalTex, colorTex, specularTex;
 
-	//Depth buffer
+	//Create the depth buffer
+	//This step is important, otherwise
+	//there will be no depth test performed
 	glGenTextures(1, &depthTex);
 	glBindTexture(GL_TEXTURE_2D, depthTex); 
+	//24 bits is enough to store depth for our case
 	glTexImage2D(GL_TEXTURE_2D,	0, GL_DEPTH_COMPONENT24, SceneParameters::getScreenWidth(), SceneParameters::getScreenHeight(), 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); 
+	//attach the texture as a depth attachement
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex, 0);
 
-	//Normal buffer
+	//Create the normal buffer
 	glGenTextures(1, &normalTex);
 	glBindTexture(GL_TEXTURE_2D, normalTex);
+	//normal is stored as a simple RGB thingy (values are from 0 to 1 in R^3)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SceneParameters::getScreenWidth(), SceneParameters::getScreenHeight(), 0, GL_RGB, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//attach the texture as the 0'th attachement
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, normalTex, 0);
 
-	//Color buffer
+	//Create the color buffer
 	glGenTextures(1, &colorTex);
 	glBindTexture(GL_TEXTURE_2D, colorTex);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SceneParameters::getScreenWidth(), SceneParameters::getScreenHeight(), 0, GL_RGBA, GL_FLOAT, NULL);
@@ -49,7 +56,7 @@ void SSAOFirstPassFramebuffer::create() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, colorTex, 0);
 
-	//Specular buffer
+	//Create the specular buffer
 	glGenTextures(1, &specularTex);
 	glBindTexture(GL_TEXTURE_2D, specularTex);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SceneParameters::getScreenWidth(), SceneParameters::getScreenHeight(), 0, GL_RGBA, GL_FLOAT, NULL);

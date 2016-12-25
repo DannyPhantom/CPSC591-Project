@@ -8,6 +8,7 @@ Mesh::~Mesh()
 
 
 void Mesh::setupVBO() {
+	//get size's of buffers
 	long cBufferSize = colours.size() * sizeof(glm::vec4),
 		vBufferSize = vertices.size() * sizeof(glm::vec3),
 		nBufferSize = normals.size() * sizeof(glm::vec3),
@@ -35,6 +36,7 @@ void Mesh::setupVBO() {
 	glBufferData(GL_ARRAY_BUFFER, uvBufferSize, &uvs[0],
 		GL_STATIC_DRAW);
 
+	//load the texture if there exists one
 	if (texture != NULL)
 		texture->Load();
 }

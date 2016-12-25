@@ -91,6 +91,9 @@ void DynamicObjectCreationUI::setup() {
 }
 
 void DynamicObjectCreationUI::onButtonClick(Button *button) {
+	//when the button is clicked we just identify which
+	//button it was and then either place an object
+	//in a "queue" or just hide/expand the menu
 	if (button == addObjectButton) {
 		isHidden = !isHidden;
 	}

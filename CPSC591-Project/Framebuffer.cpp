@@ -12,6 +12,7 @@ Framebuffer::~Framebuffer()
 }
 
 void Framebuffer::create() {
+	//in here we only create the VBO
 	glGenFramebuffers(1, &fbo);
 }
 
